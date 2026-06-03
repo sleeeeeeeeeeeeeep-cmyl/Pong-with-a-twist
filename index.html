@@ -141,17 +141,17 @@ function setupDimensions(initial) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   scale = H / 600;                                   // gameplay speeds scale with screen
-  PADDLE_H = Math.round(H * 0.16);
-  PADDLE_W = Math.max(10, Math.round(Math.min(W, H) * 0.016));
   BALL_SIZE = Math.max(20, Math.round(Math.min(W, H) * 0.032));
+  PADDLE_H = Math.round(H * 0.22);                    // bigger paddle
+  PADDLE_W = BALL_SIZE;                               // as thick as the ball
   PADDLE_MARGIN = Math.round(W * 0.035);
 
   PADDLE_SPEED = 580 * scale;
   CPU_SPEED    = 430 * scale;
   BASE_SPEED   = 380 * scale;
   CHAOS_SPEED  = 360 * scale;
-  SPEED_INC    = 28  * scale;   // bump per paddle hit (classic)
-  SPEED_RAMP   = 26  * scale;   // gradual speed gain per second
+  SPEED_INC    = 14  * scale;   // gentle bump per paddle hit (classic)
+  SPEED_RAMP   = 9   * scale;   // slow gradual speed gain per second
   MAX_SPEED    = 820 * scale;
 
   left.x  = PADDLE_MARGIN;
@@ -253,23 +253,18 @@ function clampPaddle(p) {
   if (p.y > H - PADDLE_H) p.y = H - PADDLE_H;
 }
 function updatePaddles(dt) {
-  // paddles speed up by the same amount the ball has gained since serve
-  const extra = ball.speed - (ball.baseSpeed || ball.speed);
-  const pSpeed = PADDLE_SPEED + extra;
-  const cSpeed = CPU_SPEED + extra;
-
-  if (keys['w']) left.y -= pSpeed * dt;
-  if (keys['s']) left.y += pSpeed * dt;
+  if (keys['w']) left.y -= PADDLE_SPEED * dt;
+  if (keys['s']) left.y += PADDLE_SPEED * dt;
   clampPaddle(left);
 
   if (config.players === 2) {
-    if (keys['arrowup'])   right.y -= pSpeed * dt;
-    if (keys['arrowdown']) right.y += pSpeed * dt;
+    if (keys['arrowup'])   right.y -= PADDLE_SPEED * dt;
+    if (keys['arrowdown']) right.y += PADDLE_SPEED * dt;
   } else {
     const target = ball.y + BALL_SIZE/2;
     const center = right.y + PADDLE_H/2;
     const diff = target - center;
-    if (Math.abs(diff) > 14) right.y += Math.sign(diff) * cSpeed * dt;
+    if (Math.abs(diff) > 14) right.y += Math.sign(diff) * CPU_SPEED * dt;
   }
   clampPaddle(right);
 }
